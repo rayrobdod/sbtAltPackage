@@ -4,12 +4,6 @@ import sbt._
 import Keys._
 
 object Functions {
-	def pack200(input:File, output:File, options:Seq[String]):Unit = {
-		val p = java.lang.Runtime.getRuntime.exec(
-				("pack200" +: options :+ output.toString :+ input.toString).toArray[String]
-		)
-		p.waitFor()
-	}
 	
 	def tar(input:Seq[(File, String)], outputFile:File):Unit = {
 		import java.io._
@@ -47,10 +41,19 @@ object Plugin extends AutoPlugin {
 	import autoImport._
 	override lazy val projectSettings = Seq(
 		(pack200 in packageBin in Compile) := {
+			import java.util.jar.Pack200.Packer
+			
 			val input = (packageBin in Compile).value
 			val output = new File(input.toString + ".pack.gz")
-			val options = Seq[String]("-CScalaSig=BBB", "-G", "-Ustrip")
-			Functions.pack200(input, output, options)
+			val options = Seq[(String,String)](
+					(Packer.CLASS_ATTRIBUTE_PFX + "ScalaSig", "BBB"),
+					(Packer.UNKNOWN_ATTRIBUTE, Packer.STRIP),
+					// strip-debug
+					(Packer.CODE_ATTRIBUTE_PFX + "LineNumberTable",    Packer.STRIP),
+					(Packer.CODE_ATTRIBUTE_PFX + "LocalVariableTable", Packer.STRIP),
+					(Packer.CLASS_ATTRIBUTE_PFX + "SourceFile",        Packer.STRIP)
+			)
+			sbt.Pack.pack(input, output, options)
 			output
 		},
 		(targz in packageSrc in Compile) := {
