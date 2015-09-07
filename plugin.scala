@@ -76,13 +76,21 @@ object Functions {
 		if (! exp.exists()) {sys.error("source file does not exist")}
 		if (! res.exists()) {sys.error("result file does not exist")}
 		
-		if (exp.length != res.length) {sys.error("source and result file have different contents")}
+		if (exp.isDirectory) {
+			if (res.isDirectory) { /* OK */ }
+			else {sys.error("source was directory; result was not")}
+		} else {
+			if (res.isDirectory) {sys.error("result was directory; source was not")}
+			else {
+				if (exp.length != res.length) {sys.error("source and result file have different contents: " + exp)}
 		
-		val expBytes = sbt.IO.readBytes(exp)
-		val resBytes = sbt.IO.readBytes(res)
-		if (expBytes.toList != resBytes.toList) {sys.error("source and result file have different contents")}
-		
-		// else, OK
+				val expBytes = sbt.IO.readBytes(exp)
+				val resBytes = sbt.IO.readBytes(res)
+				if (expBytes.toList != resBytes.toList) {sys.error("source and result file have different contents: ")}
+				
+				// else, OK
+			}
+		}
 	}
 	
 }
