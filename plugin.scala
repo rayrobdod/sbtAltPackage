@@ -5,6 +5,9 @@ import Keys._
 
 object Functions {
 	
+	/**
+	 * Package files into a tar archive
+	 */
 	def tar(input:Seq[(File, String)], outputFile:File):Unit = {
 		import java.io._
 		import org.kamranzafar.jtar._
@@ -29,6 +32,65 @@ object Functions {
 		}
 		
 		outputStream.close()
+	}
+	
+	/**
+	 * Extract files into a tar archive.
+	 * 
+	 * used repeatedly in sbt-scripted-tests
+	 */
+	def untar(inputFile:File, outputDir:File):Unit = {
+		import java.io._
+		import org.kamranzafar.jtar._
+		
+		val inputStream = new TarInputStream(new BufferedInputStream(new FileInputStream(inputFile)))
+		var entry:TarEntry = inputStream.getNextEntry();
+		
+		while(entry != null) {
+			var count = 0;
+			var data = new Array[Byte](2048);
+			val name = entry.getName();
+			(outputDir / name).getParentFile.mkdirs()
+			
+			val dest = new BufferedOutputStream(new FileOutputStream(outputDir / name));
+			count = inputStream.read(data)
+			while(count != -1) {
+				dest.write(data, 0, count);
+				count = inputStream.read(data);
+			}
+			
+			dest.flush();
+			dest.close();
+			entry = inputStream.getNextEntry();
+		}
+	}
+	
+	/** Test whether the two files are equivalent.
+	 * 
+	 * If this returns normally, the file contents are equal;
+	 * if this throws,then the file contents are not equal
+	 * 
+	 * used repeatedly in sbt-scripted-tests.
+	 */
+	def assertFileContentsEquals(exp:File, res:File):Unit = {
+		if (! exp.exists()) {sys.error("source file does not exist")}
+		if (! res.exists()) {sys.error("result file does not exist")}
+		
+		if (exp.isDirectory) {
+			if (res.isDirectory) { /* OK */ }
+			else {sys.error("source was directory; result was not")}
+		} else {
+			if (res.isDirectory) {sys.error("result was directory; source was not")}
+			else {
+				if (exp.length != res.length) {sys.error("source and result file have different contents: " + exp)}
+		
+				val expBytes = sbt.IO.readBytes(exp)
+				val resBytes = sbt.IO.readBytes(res)
+				if (expBytes.toList != resBytes.toList) {sys.error("source and result file have different contents: ")}
+				
+				// else, OK
+			}
+		}
 	}
 	
 }
@@ -61,6 +123,7 @@ object Plugin extends AutoPlugin {
 			val tarPath = new File(IO.split((artifactPath in packageSrc in Compile).value.toString)._1 + ".tar")
 			val output = new File(tarPath.toString + ".gz")
 			
+			tarPath.getParentFile.mkdirs()
 			Functions.tar(inputs, tarPath)
 			sbt.IO.gzip(tarPath, output)
 			output
@@ -70,6 +133,7 @@ object Plugin extends AutoPlugin {
 			val tarPath = new File(IO.split((artifactPath in packageDoc in Compile).value.toString)._1 + ".tar")
 			val output = new File(tarPath.toString + ".gz")
 			
+			tarPath.getParentFile.mkdirs()
 			Functions.tar(inputs, tarPath)
 			sbt.IO.gzip(tarPath, output)
 			output

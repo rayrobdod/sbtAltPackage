@@ -1,0 +1,6 @@
+# create
+> compile:packageSrc::targz
+
+# validate
+$ exists target/scala-2.10/source.tar.gz
+> compile:packageSrc::verifyTar

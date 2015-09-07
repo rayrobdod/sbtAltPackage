@@ -1,0 +1,6 @@
+# create a pack200 file
+> compile:packageBin::pack200
+
+# verify
+$ exists target/scala-2.10/binary.jar.pack.gz
+> verify

@@ -1,0 +1,6 @@
+# create the tar file
+> compile:packageDoc::targz
+
+# verify
+$ exists target/scala-2.10/docume.tar.gz
+> compile:packageDoc::verifyTar

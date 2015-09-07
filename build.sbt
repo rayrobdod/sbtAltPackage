@@ -10,3 +10,6 @@ version := "a.0-SNAPSHOT"
 
 libraryDependencies += "org.kamranzafar" % "jtar" % "2.2"
 
+javacOptions ++= Seq("-Xlint:deprecation", "-Xlint:unchecked")
+
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
