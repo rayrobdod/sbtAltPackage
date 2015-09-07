@@ -61,6 +61,7 @@ object Plugin extends AutoPlugin {
 			val tarPath = new File(IO.split((artifactPath in packageSrc in Compile).value.toString)._1 + ".tar")
 			val output = new File(tarPath.toString + ".gz")
 			
+			tarPath.getParentFile.mkdirs()
 			Functions.tar(inputs, tarPath)
 			sbt.IO.gzip(tarPath, output)
 			output
@@ -70,6 +71,7 @@ object Plugin extends AutoPlugin {
 			val tarPath = new File(IO.split((artifactPath in packageDoc in Compile).value.toString)._1 + ".tar")
 			val output = new File(tarPath.toString + ".gz")
 			
+			tarPath.getParentFile.mkdirs()
 			Functions.tar(inputs, tarPath)
 			sbt.IO.gzip(tarPath, output)
 			output
