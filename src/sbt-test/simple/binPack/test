@@ -3,3 +3,4 @@
 
 # verify
 $ exists target/scala-2.10/binary.jar.pack.gz
+> verify
