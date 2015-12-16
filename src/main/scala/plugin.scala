@@ -129,7 +129,8 @@ object Plugin extends AutoPlugin {
 			import java.util.jar.Pack200.Packer
 			
 			val input = (packageBin in Compile).value
-			val output = new File(input.toString + ".pack.gz")
+			val output = new File(input.toString + ".pack")
+			val gzOutput = new File(output.toString + ".gz")
 			val options = Seq[(String,String)](
 					(Packer.CLASS_ATTRIBUTE_PFX + "ScalaSig", "BBB"),
 					(Packer.UNKNOWN_ATTRIBUTE, Packer.STRIP),
@@ -139,7 +140,8 @@ object Plugin extends AutoPlugin {
 					(Packer.CLASS_ATTRIBUTE_PFX + "SourceFile",        Packer.STRIP)
 			)
 			sbt.Pack.pack(input, output, options)
-			output
+			sbt.IO.gzip(output, gzOutput)
+			gzOutput
 		},
 		(targz in packageSrc in Compile) := {
 			val inputs = (mappings in packageSrc in Compile).value
