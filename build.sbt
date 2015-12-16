@@ -6,7 +6,7 @@ organization := "com.rayrobdod"
 
 organizationHomepage := Some(new URL("http://rayrobdod.name/"))
 
-version := "a.0-SNAPSHOT"
+version := "1.0"
 
 libraryDependencies += "org.kamranzafar" % "jtar" % "2.2"
 
