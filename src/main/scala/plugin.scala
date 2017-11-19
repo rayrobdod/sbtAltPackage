@@ -178,7 +178,9 @@ object Plugin extends AutoPlugin {
 			val output = new File(input.toString + ".pack.gz")
 			val options = Seq[(String,String)](
 					(Packer.CLASS_ATTRIBUTE_PFX + "ScalaSig", "BBB"),
+					(Packer.CLASS_ATTRIBUTE_PFX + "ScalaInlineInfo", "HNH[BBBBB]"),
 					(Packer.UNKNOWN_ATTRIBUTE, Packer.STRIP),
+					(Packer.EFFORT, "9"),
 					// strip-debug
 					(Packer.CODE_ATTRIBUTE_PFX + "LineNumberTable",    Packer.STRIP),
 					(Packer.CODE_ATTRIBUTE_PFX + "LocalVariableTable", Packer.STRIP),

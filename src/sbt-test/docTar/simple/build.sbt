@@ -1,6 +1,8 @@
 version := "0.1"
 
-scalaVersion := "2.10.5"
+scalaVersion := "2.12.4"
+
+crossPaths := false
 
 artifactName in packageBin in Compile := {(a,b,c) => "binary.jar"}
 
