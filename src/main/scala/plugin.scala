@@ -29,7 +29,7 @@ import Keys._
 object Functions {
 	
 	/**
-	 * Package files into a tar archive
+	 * Package files into a tar archive.
 	 */
 	def tar(input:Seq[(File, String)], outputFile:File):Unit = {
 		import java.io._
@@ -60,7 +60,7 @@ object Functions {
 	/**
 	 * Extract files into a tar archive.
 	 * 
-	 * used repeatedly in sbt-scripted-tests
+	 * used repeatedly in sbt-scripted-tests.
 	 */
 	def untar(inputFile:File, outputDir:File):Unit = {
 		import java.io._
@@ -88,10 +88,56 @@ object Functions {
 		}
 	}
 	
+	/**
+	 * Package files into a pack200 archive.
+	 * 
+	 * Not a copy of, but should be the same as the `sbt.Pack.pack` that vanished without warning between 0.13.16 and 1.0.0
+	 */
+	def pack(input:File, output:File, options:Seq[(String, String)]):Unit = {
+		import java.util.jar.{JarFile, Pack200}
+		import java.io.OutputStream
+		
+		val packer = Pack200.newPacker
+		options.foreach{kv => packer.properties.put(kv._1, kv._2)}
+		var outputStream:OutputStream = new java.io.ByteArrayOutputStream();
+		try {
+			val inputJar = new JarFile(input);
+			outputStream = new java.io.FileOutputStream(output);
+			
+			packer.pack(inputJar, outputStream);
+			inputJar.close();
+		} finally {
+			outputStream.close();
+		}
+	}
+	
+	/**
+	 * Extract a Jar from a pack200 archive.
+	 * 
+	 * Not a copy of, but should be the same as the `sbt.Pack.unpack` that vanished without warning between 0.13.16 and 1.0.0.
+	 * used repeatedly in sbt-scripted-tests.
+	 */
+	def unpack(input:File, output:File):Unit = {
+		import java.util.jar.{JarOutputStream, Pack200}
+		import java.io.OutputStream
+		
+		val packer = Pack200.newUnpacker
+		var outputStream:OutputStream = new java.io.ByteArrayOutputStream();
+		try {
+			outputStream = new java.io.FileOutputStream(output);
+			val jarOutputStream = new JarOutputStream(outputStream)
+			
+			packer.unpack(input, jarOutputStream);
+			jarOutputStream.close();
+		} finally {
+			outputStream.close();
+		}
+	}
+	
 	/** Test whether the two files are equivalent.
 	 * 
 	 * If this returns normally, the file contents are equal;
-	 * if this throws,then the file contents are not equal
+	 * if this throws,then the file contents are not equal.
 	 * 
 	 * used repeatedly in sbt-scripted-tests.
 	 */
@@ -138,7 +184,7 @@ object Plugin extends AutoPlugin {
 					(Packer.CODE_ATTRIBUTE_PFX + "LocalVariableTable", Packer.STRIP),
 					(Packer.CLASS_ATTRIBUTE_PFX + "SourceFile",        Packer.STRIP)
 			)
-			sbt.Pack.pack(input, output, options)
+			Functions.pack(input, output, options)
 			output
 		},
 		(targz in packageSrc in Compile) := {

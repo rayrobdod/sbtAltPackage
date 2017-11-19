@@ -13,7 +13,7 @@ mainClass in Compile := Some("Main")
 TaskKey[File]("unpack200") in packageBin in Compile := {
 	val input = (pack200 in packageBin in Compile).value
 	val output = new File(input.toString + ".unpack")
-	sbt.Pack.unpack(input, output)
+	com.rayrobdod.sbtAltPackage.Functions.unpack(input, output)
 	output
 }
 
@@ -21,8 +21,8 @@ TaskKey[Unit]("verify") := {
 	val expected = "hello"
 	val resultFile = (TaskKey[File]("unpack200") in packageBin in Compile).value
 	
-	val process = sbt.Process("java", Seq("-jar", resultFile.toString))
+	val process = scala.sys.process.Process("java", Seq("-jar", resultFile.toString))
 	val out = (process!!)
-	if (out.trim != expected) {error("unexpected output: " + out)}
+	if (out.trim != expected) {scala.sys.error("unexpected output: " + out)}
 	()
 }
