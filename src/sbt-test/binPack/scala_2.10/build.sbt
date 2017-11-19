@@ -14,8 +14,10 @@ mainClass in Compile := Some("Main")
 
 TaskKey[File]("unpack200") in packageBin in Compile := {
 	val input = (pack200 in packageBin in Compile).value
-	val output = new File(input.toString + ".unpack")
-	com.rayrobdod.sbtAltPackage.Functions.unpack(input, output)
+	val unzip = new File(input.toString + ".ungz")
+	val output = new File(unzip.toString + ".unpack")
+	sbt.IO.gunzip(input, unzip)
+	com.rayrobdod.sbtAltPackage.Functions.unpack(unzip, output)
 	output
 }
 
